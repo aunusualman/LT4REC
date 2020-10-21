@@ -1,8 +1,7 @@
-# LT4REC:A Lottery Ticket Hypothesis Based Multi-task Practice for Video Recommendation System
 
-This is the code implementation of the paper [LT4REC](https://arxiv.org/abs/2008.09872).
-We demonstrate the algorithm  on the dataset gathered from traffic
-logs of Tencent video’s recommendation system.
+This is the code implementation.
+We demonstrate the algorithm on the dataset gathered from traffic
+logs of real world video recommendation system.
 ## Enviroments
 
 tensorflow==1.12
@@ -25,7 +24,7 @@ pip3 install -r requirements.txt
 
 ## Dataset
 
-For the dataset gathered from traffic logs of Tencent video’s recommendation system 
+For the dataset gathered from traffic logs of real world video recommendation system 
 is not completely public, we just provide a small part of the dataset. Download the dataset demo from .... The data is stored as the tfrecord format, with feature columns defined as:
 ```
 features{
