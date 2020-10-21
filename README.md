@@ -1,5 +1,5 @@
 
-This is the code implementation.
+This is the code implementation of LT4REC.
 We demonstrate the algorithm on the dataset gathered from traffic
 logs of real world video recommendation system.
 ## Enviroments
