@@ -25,7 +25,7 @@ pip3 install -r requirements.txt
 ## Dataset
 
 For the dataset gathered from traffic logs of real world video recommendation system 
-is not completely public, we just provide a small part of the dataset. Download the dataset demo from .... The data is stored as the tfrecord format, with feature columns defined as:
+is not completely public, we just provide a small part of the dataset.The data is encrypted and stored as the tfrecord format, with feature columns defined as:
 ```
 features{
  FEA_SVID: {tf.FixedLenFeature([], tf.string)}

@@ -146,9 +146,9 @@ validate_duaring_training: True
 
 
 
-test_tfrecord_path: /****/tfrecord/%YYYYMMDDHH00%/part-*.gz
-train_tfrecord_path: /****/tfrecord/%YYYYMMDDHH00%/part-*.gz
-val_tfrecord_path: /****/tfrecord/%YYYYMMDDHH00%/part-*.gz
+test_tfrecord_path: ./dataset/part-*.gz
+train_tfrecord_path: ./dataset/part-*.gz
+val_tfrecord_path: ./dataset/part-*.gz
 save_checkpoints_dir: /****/sparse/single/chk_points/       #/****/sparse/mtl/chk_points/
 restore_checkpoint_path: /****/single/chk_points/           #/****/mtl/chk_points/        
 tensorboard_logdir: /****/sparse/single/tb_logs/            #/****/sparse/mtl/tb_logs/
