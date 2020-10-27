@@ -207,14 +207,14 @@ class TrainerSingle(object):
         if self._evaluator is not None:
             eval_results,cvr_predicts,cvr_labels = self._evaluator.run(sess=self._sess,feed_mask=feed_mask)
             for i in range(10):
-                print("predict,label",cvr_predicts[i],cvr_labels['playrate'][i])
+                print("predict,label",cvr_predicts[i],cvr_labels['cvrlabel'][i])
             self._valid_logger.log_info(eval_results, epoch=epoch, step=step)
 
     def _test(self, epoch, step,feed_mask):
         if self._tester is not None:
             test_results,cvr_predicts,cvr_labels = self._tester.run(sess=self._sess,feed_mask=feed_mask)
             for i in range(10):
-                print("predict,label",cvr_predicts[i],cvr_labels['playrate'][i])
+                print("predict,label",cvr_predicts[i],cvr_labels['cvrlabel'][i])
                 
             #self._test_logger._log_to_console(labels, epoch=epoch, step=step)
             self._test_logger.log_info(test_results, epoch=epoch, step=step)

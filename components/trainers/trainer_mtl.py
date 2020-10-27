@@ -129,8 +129,8 @@ class TrainerMTL(object):
         trainer = tf.train.AdamOptimizer(learning_rate=self._learning_rate)
         
         transform_fn = self._join_pipeline(self._transform_functions)
-        loss_ctr,f_loss_cvr = self._train_fn(transform_fn(self._datasets[0].next_batch))
-        f_loss_ctr,loss_cvr = self._train_fn(transform_fn(self._datasets[1].next_batch))
+        loss_ctr,loss_cvr = self._train_fn(transform_fn(self._datasets.next_batch))
+        #f_loss_ctr,loss_cvr = self._train_fn(transform_fn(self._datasets[1].next_batch))
         loss_lst = self._combine_loss(loss_ctr,loss_cvr)
         
         grads_ctr = tf.gradients(loss_lst[0], trainable_params)   #just for init optimizer's variable
@@ -154,8 +154,8 @@ class TrainerMTL(object):
         task_len=len(self.task_lst)
         
         for epoch in range(self._train_epochs):
-            for i in range(len(self._datasets)):
-                self._datasets[i].init(self._sess)
+            
+            self._datasets.init(self._sess)
             empty_task=set()
             while len(empty_task)<task_len:
                 for task_id in self.task_lst:
@@ -202,7 +202,7 @@ class TrainerMTL(object):
             loss_dic={"loss_{}".format(task_id):loss}
             self._train_logger.log_info(loss_dic=loss_dic,
                                         time=t_end - t_start,
-                                        size=self._datasets[task_id].batch_size,
+                                        size=self._datasets.batch_size,
                                         epoch=epoch,
                                         step=step + 1
                                         )        
@@ -230,14 +230,14 @@ class TrainerMTL(object):
         if self._evaluator is not None:
             eval_results,cvr_predicts,cvr_labels = self._evaluator.run(sess=self._sess,feed_mask=feed_mask)
             for i in range(10):
-                print("predict,label",cvr_predicts[i],cvr_labels['playrate'][i])
+                print("predict,label",cvr_predicts[i],cvr_labels['cvrlabel'][i])
             self._valid_logger.log_info(eval_results, epoch=epoch, step=step)
 
     def _test(self, epoch, step,feed_mask):
         if self._tester is not None:
             test_results,cvr_predicts,cvr_labels = self._tester.run(sess=self._sess,feed_mask=feed_mask)
             for i in range(10):
-                print("predict,label",cvr_predicts[i],cvr_labels['playrate'][i])
+                print("predict,label",cvr_predicts[i],cvr_labels['cvrlabel'][i])
                 
             #self._test_logger._log_to_console(labels, epoch=epoch, step=step)
             self._test_logger.log_info(test_results, epoch=epoch, step=step)

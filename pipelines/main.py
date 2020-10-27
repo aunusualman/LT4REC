@@ -11,6 +11,8 @@ from absl import app
 from absl import flags
 import yaml
 
+sys.path.append("..")
+from components.statistics_gens.dataset_statistics_gen import DatasetStatisticsGen
 from components.datasets.tfrecord_dataset import TFRecordDataset
 from components.evaluators.evaluator import Evaluator
 from components.networks.dlrm_sparse_network import DlrmSparseNetwork
@@ -26,56 +28,30 @@ from pipelines.utils.util import tf_global_config
 
 
 FLAGS = flags.FLAGS
-flags.DEFINE_string("test_hour", "202003281900", "training data partition")
-flags.DEFINE_string("train_hour", "202003281900", "training data partition")
-flags.DEFINE_string("validate_hour", "202003282000", "validation data partition")
 flags.DEFINE_string("config_filepath", "./drank_tf.yaml", "Yaml config filepath.")                 
 flags.DEFINE_string("cut_names", "fc", "need cut layer")
 flags.DEFINE_string("training_mode", "single", "single or mtl")
 flags.DEFINE_float("prune_final_rate",0.2,"the final rate of left weights")
 flags.DEFINE_integer("prune_pruning_iter",4,"the iterator time")
 flags.DEFINE_integer("task_id",0,"sparse sharing single task id")
-
+flags.DEFINE_string("test_hour", "202003281900", "training data partition")
+flags.DEFINE_string("train_hour", "202003281900", "training data partition")
+flags.DEFINE_string("validate_hour", "202003282000", "validation data partition")
 
 def get_complete_data_path(conf):
-    th = parse_partitions(FLAGS.train_hour)
-    tp = [conf["train_tfrecord_path"].replace("%YYYYMMDDHH00%", hour) for hour in th]
+    tp = [conf["train_tfrecord_path"]]
     print("Train path:%s" % tp)
 
-    testh = parse_partitions(FLAGS.test_hour)
     testp = []
     if len(conf["test_tfrecord_path"]) > 0:
-        testp = [conf["test_tfrecord_path"].replace("%YYYYMMDDHH00%", hour) for hour in testh]
+        testp = [conf["test_tfrecord_path"]]
     print("test path:%s" % testp)
 
-    vh = parse_partitions(FLAGS.validate_hour)
     vp = []
     if len(conf["val_tfrecord_path"]) > 0:
-        vp = [conf["val_tfrecord_path"].replace("%YYYYMMDDHH00%", hour) for hour in vh]
+        vp = [conf["val_tfrecord_path"]]
     print("Val path:%s" % vp)
     return tp, testp, vp
-
-def parse_partitions(partitions):
-    if "~" not in partitions:
-        return [partitions]
-
-    # dont support cross months config
-    begin, end = partitions.split("~")
-    startDay=int(begin[6:8])
-    startH=int(begin[8:10])
-    endDay=int(end[6:8])
-    endH=int(end[8:10])
-
-    partitionList=[]
-    for d in range(startDay, endDay+1):
-        for h in range(0,24):
-            if((d==startDay and h<startH) or (d==endDay and h>endH)):
-                continue
-            sd="0"+str(d) if d<10 else str(d)
-            sh="0"+str(h) if h<10 else str(h)
-            partitionList.append(begin[0:6]+sd+sh+"00")
-    print(partitionList)
-    return partitionList
 
 
 def main_pipeline():
@@ -83,7 +59,7 @@ def main_pipeline():
     config_filepath = FLAGS.config_filepath
     configs = yaml.safe_load(open(config_filepath))
 
-    print("=============================%s===================================" % FLAGS.train_hour)
+    print("=============================%s===================================" % "start")
     train_path, test_path, val_path = get_complete_data_path(configs)
      
 
@@ -128,8 +104,10 @@ def main_pipeline():
         drop_remainder=False,
         sloppy=False,
     )
-
-
+    
+    gen =DatasetStatisticsGen(dataset_train)
+    s=gen.run()
+    print(s)
     print("Phase 2. Create Transforms and Network ----------------------------")
     transform1 = CategoricalTransform(
         feature_names=configs["transform"]["categorical_features"],
@@ -184,8 +162,8 @@ def main_pipeline():
             train_epochs=configs["train_epochs"],
             evaluator=evaluator,
             tester=tester,
-            save_checkpoints_dir=configs["save_checkpoints_dir"],
-            restore_checkpoint_path=configs["restore_checkpoint_path"],
+            save_checkpoints_dir=configs["save_mtl_checkpoints_dir"],
+            restore_checkpoint_path=configs["restore_mtl_checkpoint_path"],
             tensorboard_logdir=configs["tensorboard_logdir"],
             train_hour=FLAGS.train_hour,
             test_hour=FLAGS.test_hour,

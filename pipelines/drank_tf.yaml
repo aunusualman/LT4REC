@@ -21,7 +21,7 @@ feature_configs:
     FEA_UCAT: {dtype: string, size: -1}
     seqnum: {dtype: string, size: 1}
     pctr: {dtype: string, size: 1}
-    playrate: {dtype: float32,size: 1}
+    cvrlabel: {dtype: float32,size: 1}
     label: {dtype: int64, size: 1}
 
 transform:
@@ -86,20 +86,16 @@ ctrmetrics:
     - name: AUC
       type: auc
       label: label
-    - name: GAUC
-      type: group_auc
-      label: label
-      group_key: seqnum
 
 cvrmetrics:
     - name: MSE
       type: weighted_mse
-      label: playrate
+      label: cvrlabel
     
 
 cvrloss:
     type: weighted_mse
-    label: playrate 
+    label: cvrlabel 
     
 ctrloss:
     type: focal_loss
@@ -107,11 +103,11 @@ ctrloss:
     alpha: 0.75
     gamma: 2  
 
-batch_size: 4096 
-embed_size: 32
+batch_size: 32 #   In the real systerm, the value is  4096. 
+embed_size: 16
 default_num_oov_buckets: 10
 map_num_oov_buckets:
-    FEA_VID: 15000000
+    FEA_VID:  15000000
     FEA_IXFTAG: 500000
     FEA_UID: 10000000
     FEA_UCITY: 20
@@ -136,20 +132,21 @@ map_shared_embedding:
     FEA_IKEYWORD: FEA_IXFTAG
     
 hidden_size: [512,256,128]
-validate_steps: 1000
-log_steps: 1000
+validate_steps: 5
+log_steps: 5
 learning_rate: 0.0001
 train_file_shuffle: True 
-train_shuffle_buffer_size: 10000
+train_shuffle_buffer_size: 10
 train_epochs: 1
 validate_duaring_training: True
 
 
 
-test_tfrecord_path: ./dataset/part-*.gz
-train_tfrecord_path: ./dataset/part-*.gz
-val_tfrecord_path: ./dataset/part-*.gz
-save_checkpoints_dir: /****/sparse/single/chk_points/       #/****/sparse/mtl/chk_points/
-restore_checkpoint_path: /****/single/chk_points/           #/****/mtl/chk_points/        
-tensorboard_logdir: /****/sparse/single/tb_logs/            #/****/sparse/mtl/tb_logs/
-save_model_dir: /****/sparse/single/saved_model             #/****/sparse/mtl/saved_model
+test_tfrecord_path: /****/LT4REC/dataset/part-r-00002.gz
+train_tfrecord_path: /****/LT4REC/dataset/part-r-00002.gz
+val_tfrecord_path: /****/LT4REC/dataset/part-r-00002.gz
+save_checkpoints_dir: /****/LT4REC/checkpoints/single/chk_points/              
+restore_checkpoint_path: /****/LT4REC/checkpoints/single/chk_points/                   
+tensorboard_logdir: /****/LT4REC/Logs/single/tb_logs/
+save_mtl_checkpoints_dir: /****/LT4REC/checkpoints/mtl/                      
+restore_mtl_checkpoint_path: /****/LT4REC/checkpoints/mtl/

@@ -28,20 +28,134 @@ For the dataset gathered from traffic logs of real world video recommendation sy
 is not completely public, we just provide a small part of the dataset.The data is encrypted and stored as the tfrecord format, with feature columns defined as:
 ```
 features{
- FEA_SVID: {tf.FixedLenFeature([], tf.string)}
-    FEA_SCP: {tf.FixedLenFeature([], tf.string)}          
-    FEA_SICAT1: {tf.FixedLenFeature([], tf.string)}         
-    FEA_SICAT2: {tf.FixedLenFeature([], tf.string)}          
-    FEA_SIKEYWORD: {tf.FixedLenSequenceFeature([], tf.string)}  
-    FEA_STAG: {tf.FixedLenSequenceFeature([], tf.string)}
-    FEA_VID: {tf.FixedLenFeature([], tf.string)}    
-    FEA_CP: {tf.FixedLenFeature([], tf.string)}   
-    FEA_ICAT1: {tf.FixedLenFeature([], tf.string)}   
-    FEA_ICAT2: {tf.FixedLenFeature([], tf.string)}   
-    FEA_IXFTAG: {tf.FixedLenSequenceFeature([], tf.string)}
-    ...
-    playrate: {tf.FixedLenFeature([], tf.float32)} 
-    label: {tf.FixedLenFeature([], tf.int64)} 
+    'FEA_SVID': tf.io.FixedLenFeature([1], tf.string,"-1"),
+    'FEA_SCP': tf.io.FixedLenFeature([1], tf.string,"-1"),           
+    'FEA_SICAT1': tf.io.FixedLenFeature([1], tf.string,"-1"),          
+    'FEA_SICAT2': tf.io.FixedLenFeature([1], tf.string,"-1"),          
+    'FEA_SIKEYWORD': tf.io.FixedLenSequenceFeature(shape=[], dtype=tf.string,allow_missing=True,default_value="-1"),  
+    'FEA_STAG': tf.io.FixedLenSequenceFeature(shape=[], dtype=tf.string,allow_missing=True,default_value="-1"),
+    'FEA_VID': tf.io.FixedLenFeature([1], tf.string,"-1"),   
+    'FEA_CP': tf.io.FixedLenFeature([1], tf.string,"-1"),   
+    'FEA_ICAT1': tf.io.FixedLenFeature([1], tf.string,"-1"),   
+    'FEA_ICAT2': tf.io.FixedLenFeature([1], tf.string,"-1"),  
+    'FEA_IXFTAG': tf.io.FixedLenSequenceFeature(shape=[], dtype=tf.string,allow_missing=True,default_value="-1"),  
+    'FEA_AGE': tf.io.FixedLenFeature([1], tf.string,"-1"),
+    'FEA_IKEYWORD': tf.io.FixedLenSequenceFeature(shape=[], dtype=tf.string,allow_missing=True,default_value="-1"),  
+    'FEA_DURATION': tf.io.FixedLenFeature([1], tf.string,"-1"),
+    'FEA_ALGID': tf.io.FixedLenFeature([1], tf.string,"-1"),
+    'FEA_ORDER': tf.io.FixedLenFeature([1], tf.string,"-1"),   
+    'FEA_COVERQUALITY': tf.io.FixedLenFeature([1], tf.string,"-1"),
+    'FEA_UID': tf.io.FixedLenFeature([1], tf.string,"-1"),
+    'FEA_UGROUP': tf.io.FixedLenFeature([1], tf.string,"-1"), 
+    'FEA_UCAT': tf.io.FixedLenSequenceFeature(shape=[], dtype=tf.string,allow_missing=True,default_value="-1"),
+    'seqnum': tf.io.FixedLenFeature([1], tf.string,"-1"),
+    'pctr': tf.io.FixedLenFeature([1], tf.string,"-1"),
+    'cvrlabel': tf.io.FixedLenFeature([1], tf.float32,0),
+    'label': tf.io.FixedLenFeature([1], tf.int64,0),
     }
 ```
+## Training
+Enter the piplines folder.
+##### get the mask of single task:
+ctr task:
+```python main.py --training_mode=single --task_id=0```
+cvr task:
+```python main.py --training_mode=single --task_id=1```
+Your can adjust the nubmer of pruning iteriterations and final remaining parameter rate by seting the following parameters:
+```--prune_pruning_iter & --prune_final_rate```
+Then you can get the mask of every task. According to the metrics, choose the best mask of every task and rename them to 0.pkl and 1.pkl.
+After that, You should create a mask folder named mask under the save_mtl_checkpoints_dir folder.
+Finally, move the masks to the mask folder. 
+##### traing the multi-task:
+```python main.py --training_mode=mtl```
+The complete file path is as follows：
+```
+.
+├── checkpoints
+│   ├── mtl
+│   │   ├── checkpoint
+│   │   ├── ckpt_epoch-1.data-00000-of-00001
+│   │   ├── ckpt_epoch-1.index
+│   │   ├── ckpt_epoch-1.meta
+│   │   └── mask
+│   │       ├── 0.pkl
+│   │       └── 1.pkl
+│   └── single
+│       └── chk_points
+│           ├── 0
+│           │   ├── checkpoint
+│           │   ├── ckpt_init-0.data-00000-of-00001
+│           │   ├── ckpt_init-0.index
+│           │   ├── ckpt_init-0.meta
+│           │   └── mask
+│           │       ├── 1_66.87%.pkl
+│           │       ├── 2_44.72%.pkl
+│           │       ├── 3_29.91%.pkl
+│           │       ├── 4_20.0%.pkl
+│           │       └── 5_20.0%.pkl
+│           └── 1
+│               ├── checkpoint
+│               ├── ckpt_init-0.data-00000-of-00001
+│               ├── ckpt_init-0.index
+│               ├── ckpt_init-0.meta
+│               └── mask
+│                   ├── 1_66.87%.pkl
+│                   ├── 2_44.72%.pkl
+│                   ├── 3_29.91%.pkl
+│                   ├── 4_20.0%.pkl
+│                   └── 5_20.0%.pkl
+├── components
+│   ├── datasets
+│   │   ├── base_dataset.py
+│   │   └── tfrecord_dataset.py
+│   ├── evaluators
+│   │   ├── evaluator.py
+│   ├── losses
+│   │   ├── base_loss.py
+│   │   ├── cross_entropy_loss.py
+│   │   ├── mse_loss.py
+│   ├── metrics
+│   │   ├── auc_metric.py
+│   │   ├── base_metric.py
+│   │   ├── mse_metric.py
+│   ├── networks
+│   │   ├── base_network.py
+│   │   ├── dlrm_sparse_network.py
+│   ├── pruning
+│   │   ├── prune_mlt.py
+│   │   ├── prune.py
+│   ├── statistics_gens
+│   │   ├── base_statistics_gen.py
+│   │   ├── dataset_statistics_gen.py
+│   │   └── statistics.py
+│   ├── trainers
+│   │   ├── trainer_mtl.py
+│   │   └── trainer_single.py
+│   ├── transforms
+│   │   ├── base_transform.py
+│   │   ├── categorical_transform.py
+│   │   ├── cross_transform.py
+│   │   └── select_transform.py
+│   └── utils
+│       ├── loggers.py
+│       └── types.py
+├── dataset
+│   └── part-r-00002.gz
+├── Logs
+│   └── single
+│       └── tb_logs
+│           ├── 0      
+│           ├── 1
+├── pipelines
+│   ├── drank_tf.yaml
+│   ├── main.py
+│   └── utils
+│       ├── config_parser.py
+│       └── util.py
+├── readdata.py
+├── README.md
+└── requirements.txt
+```
+
+
 
