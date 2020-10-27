@@ -58,17 +58,26 @@ features{
 Enter the piplines folder.
 ##### get the mask of single task:
 ctr task:
+
 ```python main.py --training_mode=single --task_id=0```
+
 cvr task:
+
 ```python main.py --training_mode=single --task_id=1```
+
 Your can adjust the nubmer of pruning iteriterations and final remaining parameter rate by seting the following parameters:
+
 ```--prune_pruning_iter & --prune_final_rate```
+
 Then you can get the mask of every task. According to the metrics, choose the best mask of every task and rename them to 0.pkl and 1.pkl.
+
 After that, You should create a mask folder named mask under the save_mtl_checkpoints_dir folder.
+
 Finally, move the masks to the mask folder. 
+
 ##### traing the multi-task:
 ```python main.py --training_mode=mtl```
-The complete file path is as follows：
+The complete checkpoints file path is as follows：
 ```
 .
 ├── checkpoints
@@ -104,57 +113,6 @@ The complete file path is as follows：
 │                   ├── 3_29.91%.pkl
 │                   ├── 4_20.0%.pkl
 │                   └── 5_20.0%.pkl
-├── components
-│   ├── datasets
-│   │   ├── base_dataset.py
-│   │   └── tfrecord_dataset.py
-│   ├── evaluators
-│   │   ├── evaluator.py
-│   ├── losses
-│   │   ├── base_loss.py
-│   │   ├── cross_entropy_loss.py
-│   │   ├── mse_loss.py
-│   ├── metrics
-│   │   ├── auc_metric.py
-│   │   ├── base_metric.py
-│   │   ├── mse_metric.py
-│   ├── networks
-│   │   ├── base_network.py
-│   │   ├── dlrm_sparse_network.py
-│   ├── pruning
-│   │   ├── prune_mlt.py
-│   │   ├── prune.py
-│   ├── statistics_gens
-│   │   ├── base_statistics_gen.py
-│   │   ├── dataset_statistics_gen.py
-│   │   └── statistics.py
-│   ├── trainers
-│   │   ├── trainer_mtl.py
-│   │   └── trainer_single.py
-│   ├── transforms
-│   │   ├── base_transform.py
-│   │   ├── categorical_transform.py
-│   │   ├── cross_transform.py
-│   │   └── select_transform.py
-│   └── utils
-│       ├── loggers.py
-│       └── types.py
-├── dataset
-│   └── part-r-00002.gz
-├── Logs
-│   └── single
-│       └── tb_logs
-│           ├── 0      
-│           ├── 1
-├── pipelines
-│   ├── drank_tf.yaml
-│   ├── main.py
-│   └── utils
-│       ├── config_parser.py
-│       └── util.py
-├── readdata.py
-├── README.md
-└── requirements.txt
 ```
 
 
